@@ -1,14 +1,17 @@
 import Repository.UserRepository;
+import Service.TransactionService;
 import model.User;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.sql.DriverManager;
 
 public class BotUtil extends TelegramLongPollingBot {
-    UserRepository userRepository = new UserRepository();
+
+    CommandHandler commandHandler = new CommandHandler();
+
+
     @Override
     public String getBotUsername() {
         return "FinManagerBot";
@@ -21,34 +24,26 @@ public class BotUtil extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            String text = update.getMessage().getText();
-            long chatId = update.getMessage().getChatId();
-
-            if (text.equals("/start")) {
-                sendText(chatId, "Привет, я твой финансовый помощник");
-                long tgId = update.getMessage().getFrom().getId();
-                String username = update.getMessage().getFrom().getUserName();
-
-                User user = new User(tgId, username);
-                userRepository.save(user);
-            }
-            else if(text.equals("Что ты умеешь?")){
-                sendText(chatId, "Я могу грамотно распределить твой бюджет");
-            }
+        if (!update.hasMessage() || !update.getMessage().hasText()) return;
 
 
-        }
+        String text = update.getMessage().getText();
+        long chatId = update.getMessage().getChatId();
+        long tgId = update.getMessage().getFrom().getId();
+        String username = update.getMessage().getFrom().getUserName();
+
+        String response = commandHandler.handler(text, tgId, username);
+        if (response != null && !response.isBlank()) sendText(chatId, response);
 
     }
 
     public void sendText(long chatId, String message) {
         SendMessage mess = new SendMessage();
-        mess.setChatId(chatId);
+        mess.setChatId(String.valueOf(chatId));
         mess.setText(message);
-        try{
+        try {
             execute(mess);
-        }catch(TelegramApiException e){
+        } catch (TelegramApiException e) {
             e.printStackTrace();
         }
 

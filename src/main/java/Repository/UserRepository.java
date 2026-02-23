@@ -14,9 +14,8 @@ public class UserRepository {
 
         try (Connection conn = DatabaseManager.connection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setLong(1, user.getTgId());
-            ps.setString(2, user.getUsername());
-
+            ps.setLong(1, user.tgId());
+            ps.setString(2, user.username());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -35,7 +34,8 @@ public class UserRepository {
             if (rs.next()) {
                 return new User(
                         rs.getLong("telegram_id"),
-                        rs.getString("username"));
+                        rs.getString("username"),
+                        rs.getInt("id"));
             }
 
         }catch (SQLException e){

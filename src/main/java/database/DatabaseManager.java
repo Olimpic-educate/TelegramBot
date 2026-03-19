@@ -16,7 +16,7 @@ public class DatabaseManager {
         try (Connection conn = connection();
              Statement stmt = conn.createStatement()) {
             String userTable = """
-                    CREATE TABLE IF NOT EXISTS USERS(id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT,
                                                                             telegram_id INTEGER UNIQUE,
                                                                             username TEXT);
                     """;

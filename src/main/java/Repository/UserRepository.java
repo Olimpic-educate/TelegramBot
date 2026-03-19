@@ -10,7 +10,7 @@ import java.sql.SQLException;
 
 public class UserRepository {
     public void save(User user) {
-        String sql = "INSERT OR IGNORE [users] (telegram id, username)VALUES( ?,?)";
+        String sql = "INSERT OR IGNORE INTO users (telegram_id, username)VALUES( ?,?)";
 
         try (Connection conn = DatabaseManager.connection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 

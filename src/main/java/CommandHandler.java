@@ -7,12 +7,14 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CommandHandler {
 
-    public  CommandHandler() {
-       createKeyboard();
+    public CommandHandler() {
+        createKeyboard();
     }
+
     private final TransactionService service = new TransactionService();
     UserRepository userRepository = new UserRepository();
     ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
@@ -21,10 +23,11 @@ public class CommandHandler {
     KeyboardRow row2 = new KeyboardRow();
 
     public void createKeyboard() {
-        row1.add("Доход");
-        row1.add("Расход");
-        row2.add("Баланс");
-        row2.add("История");
+        row1.add("Доход💰");
+        row1.add("Расход💸");
+        row2.add("Баланс📈");
+        row2.add("История📜");
+        row2.add("Статистика📊");
 
         List<KeyboardRow> key = new ArrayList<>();
         key.add(row1);
@@ -43,7 +46,7 @@ public class CommandHandler {
                 User user = new User(tgId, username);
                 userRepository.save(user);
             }
-            return "Привет, я твой финансовый помощник";
+            return "Привет, я твой финансовый помощник🖐️";
         }
 
 
@@ -52,10 +55,10 @@ public class CommandHandler {
         }
 
         int userId = us.id();
-        if (text.equals("Доход")) {
+        if (text.equals("Доход💰")) {
             return "Введите: /income сумма категория";
         }
-        if (text.equals("Расход")) {
+        if (text.equals("Расход💸")) {
             return "Введите: /expense сумма категория";
         }
 
@@ -75,7 +78,7 @@ public class CommandHandler {
             }
             String category = String.valueOf(parts[2]);
             service.addIncome(userId, amount, category);
-            return "Доход добавлен!"; //убрать (вариативно)
+            return "💰Доход добавлен!"; //убрать (вариативно)
         }
 
         if (text.startsWith("/expense")) { //продумать случай день рождения
@@ -94,21 +97,20 @@ public class CommandHandler {
             }
             String category = String.valueOf(parts[2]);
             service.addExpense(userId, amount, category);
-            return "Расход добавлен!"; //убрать (вариативно)
+            return "💸Расход добавлен!"; //убрать (вариативно)
         }
 
-        if(text.equals("История")){
+        if (text.equals("История📜")) {
             List<Transaction> list = service.getHistory(userId);
-            if(list.isEmpty()){
+            if (list.isEmpty()) {
                 return "История пуста";
             }
 
-            StringBuilder sb = new StringBuilder("История:\n\n");
-            for(Transaction t: list){
-                if(t.type().equals("income") ){
+            StringBuilder sb = new StringBuilder("📜История:\n\n");
+            for (Transaction t : list) {
+                if (t.type().equals("income")) {
                     sb.append("Доход");
-                }
-                else if(t.type().equals("expense")){
+                } else if (t.type().equals("expense")) {
                     sb.append("Расход");
                 }
                 sb.append(" (").append(t.amount()).append(")\n").append(t.category()).append("\n");
@@ -117,8 +119,27 @@ public class CommandHandler {
 
         }
 
+        if (text.equals("/stats") || text.equals("Статистика📊")) {
+            Map<String, Double> stats = service.getStats(userId);
 
-        if (text.equals("Баланс")) {
+            if (stats.isEmpty()) {
+                return "История пуста";
+            }
+
+            StringBuilder sb = new StringBuilder("📊Статистика расходов:" + "\n");
+
+            for (String category : stats.keySet()) {
+                sb.append(category).
+                        append(" ").
+                        append(stats.get(category)).
+                        append("\n");
+            }
+            return sb.toString();
+
+        }
+
+
+        if (text.equals("Баланс📈")) {
             return String.valueOf(service.getBalance(userId));
         }
         return null;

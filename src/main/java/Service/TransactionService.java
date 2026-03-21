@@ -5,7 +5,9 @@ import model.Transaction;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class TransactionService {
     TransactionRepository repository = new TransactionRepository();
@@ -24,6 +26,9 @@ public class TransactionService {
         double in = repository.sumByType(userId, "income");
         double ex = repository.sumByType(userId, "expense");
        return in - ex;
+    }
+    public Map<String, Double> getStats(int userId){
+        return repository.getStats(userId);
     }
     public List<Transaction> getHistory(int user_id){
         return repository.findByUserId(user_id);

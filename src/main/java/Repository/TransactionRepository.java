@@ -8,7 +8,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TransactionRepository {
     public void save(Transaction transaction) {
@@ -51,10 +53,31 @@ public class TransactionRepository {
         return list;
     }
 
-    public void sumByCategory(int user_Id, String category) {
-        String ca;
-        findByUserId(user_Id).get(3);
+    public Map<String,Double> getStats(int userId){
+        Map<String, Double> map = new HashMap<>();
+        String sql = """
+                SELECT category, SUM(amount)
+                FROM transactions
+                WHERE user_id = ? AND type = 'expense'
+                GROUP BY category
+                """;
+        try(Connection conn = DatabaseManager.connection(); PreparedStatement ps = conn.prepareStatement(sql)){
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()){
+                String category = rs.getString(1);
+                Double amount = rs.getDouble(2);
+                map.put(category, amount);
+            }
+        }catch(SQLException e){
+            e.printStackTrace();
+        }catch (Exception exe){
+            exe.printStackTrace();
+        }
+        return map;
     }
+
+
 
     public double sumByType(int userId, String type) {
         String sql = """

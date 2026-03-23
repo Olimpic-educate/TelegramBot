@@ -2,9 +2,12 @@ import Repository.UserRepository;
 import Service.TransactionService;
 import model.Transaction;
 import model.User;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +28,10 @@ public class CommandHandler {
     public void createKeyboard() {
         row1.add("Доход💰");
         row1.add("Расход💸");
+        row1.add("Диаграмма расходов📊");
         row2.add("Баланс📈");
         row2.add("История📜");
-        row2.add("Статистика📊");
+        row2.add("Статистика🧮");
 
         List<KeyboardRow> key = new ArrayList<>();
         key.add(row1);
@@ -37,7 +41,7 @@ public class CommandHandler {
     }
 
 
-    public String handler(String text, long tgId, String username) {
+    public String handler(String text, long tgId, String username, long chatId) {
 
         User us = userRepository.findByTelegramId(tgId);
 
@@ -95,7 +99,7 @@ public class CommandHandler {
             } catch (NumberFormatException e) {
                 return "Неверный формат";
             }
-            String category = String.valueOf(parts[2]);
+            String category = parts[2];
             service.addExpense(userId, amount, category);
             return "💸Расход добавлен!"; //убрать (вариативно)
         }
@@ -119,14 +123,14 @@ public class CommandHandler {
 
         }
 
-        if (text.equals("/stats") || text.equals("Статистика📊")) {
+        if (text.equals("/stats") || text.equals("Статистика🧮")) {
             Map<String, Double> stats = service.getStats(userId);
 
             if (stats.isEmpty()) {
                 return "История пуста";
             }
 
-            StringBuilder sb = new StringBuilder("📊Статистика расходов:" + "\n");
+            StringBuilder sb = new StringBuilder("🧮Статистика расходов:" + "\n");
 
             for (String category : stats.keySet()) {
                 sb.append(category).
@@ -138,6 +142,10 @@ public class CommandHandler {
 
         }
 
+        if(text.equals("/chart") || text.equals("Диаграмма расходов📊")){
+            service.createChart(userId);
+           return "SEND_PHOTO";
+        }
 
         if (text.equals("Баланс📈")) {
             return String.valueOf(service.getBalance(userId));

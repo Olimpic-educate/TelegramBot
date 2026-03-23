@@ -32,7 +32,8 @@ public class TransactionRepository {
     public List<Transaction> findByUserId(int user_id) {
         List<Transaction> list = new ArrayList();
         String sql = "SELECT * FROM transactions WHERE user_id =?";
-        try (Connection conn = DatabaseManager.connection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseManager.connection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, user_id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
